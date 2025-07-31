@@ -3,7 +3,7 @@ export const NOTES_SERVER = process.env.NOTES_SERVER || 'http://localhost:8080';
 
 // Types based on your Go backend responses
 export interface Note {
-  id?: string;
+  _id?: string;
   title?: string;
   body?: string;
   created_at?: string;
@@ -60,6 +60,16 @@ export const createNote = async (note: { title: string; body: string }): Promise
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(note),
+    });
+    const data = await response.json();
+    return data;
+}
+
+// Delete a note by ID
+export const deleteNote = async (id: string): Promise<NoteResponse> => {
+    const url = getNotesServerUrl();
+    const response = await fetch(`${url}/note/${id}`, {
+        method: 'DELETE',
     });
     const data = await response.json();
     return data;

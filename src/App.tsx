@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getNotes, createNote, Note, NotesResponse } from './utils/notesUtil';
+import { getNotes, createNote, deleteNote, Note, NotesResponse } from './utils/notesUtil';
 import './App.css';
 
 function App() {
@@ -9,6 +9,9 @@ function App() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newNote, setNewNote] = useState({ title: '', body: '' });
   const [creating, setCreating] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [noteToDelete, setNoteToDelete] = useState<Note | null>(null);
 
   // Fetch notes on component mount
   useEffect(() => {
@@ -49,6 +52,32 @@ function App() {
     } finally {
       setCreating(false);
     }
+  };
+
+  const handleDeleteNote = async (id: string) => {
+    try {
+      setDeleting(id);
+      setError(null);
+      await deleteNote(id);
+      await fetchNotes(); // Refresh the notes list
+      setShowDeleteConfirm(null);
+      setNoteToDelete(null);
+    } catch (err) {
+      setError('Failed to delete note');
+      console.error('Error deleting note:', err);
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const openDeleteConfirm = (note: Note) => {
+    setNoteToDelete(note);
+    setShowDeleteConfirm(note._id || '');
+  };
+
+  const closeDeleteConfirm = () => {
+    setShowDeleteConfirm(null);
+    setNoteToDelete(null);
   };
 
   const formatDate = (dateString?: string) => {
@@ -142,12 +171,22 @@ function App() {
               </div>
             ) : (
               notes.map((note, index) => (
-                <div key={note.id || index} className="note-card">
+                <div key={note._id || index} className="note-card">
                   <div className="note-header">
                     <h3>{note.title}</h3>
-                    <span className="note-date">
-                      {formatDate(note.created_at)}
-                    </span>
+                    <div className="note-actions">
+                      <span className="note-date">
+                        {formatDate(note.created_at)}
+                      </span>
+                      <button
+                        className="delete-btn"
+                        onClick={() => openDeleteConfirm(note)}
+                        disabled={deleting === note._id}
+                        title="Delete note"
+                      >
+                        🗑️
+                      </button>
+                    </div>
                   </div>
                   <div className="note-content">
                     {note.body}
@@ -158,6 +197,32 @@ function App() {
           </div>
         </div>
       </main>
+
+      {/* Delete Confirmation Modal - Outside of note cards */}
+      {showDeleteConfirm && noteToDelete && (
+        <div className="delete-confirm-overlay">
+          <div className="delete-confirm-modal">
+            <h4>Delete Note</h4>
+            <p>Are you sure you want to delete "{noteToDelete.title}"? This action cannot be undone.</p>
+            <div className="delete-confirm-actions">
+              <button
+                className="delete-confirm-btn"
+                onClick={() => handleDeleteNote(noteToDelete._id || '')}
+                disabled={deleting === noteToDelete._id}
+              >
+                {deleting === noteToDelete._id ? 'Deleting...' : 'Delete'}
+              </button>
+              <button
+                className="cancel-btn"
+                onClick={closeDeleteConfirm}
+                disabled={deleting === noteToDelete._id}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
