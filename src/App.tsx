@@ -1,37 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Container, 
-  Typography, 
   Button, 
-  TextField, 
-  Card, 
-  CardContent, 
   Box, 
-  AppBar, 
-  Toolbar, 
-  IconButton, 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
-  DialogActions, 
   Alert, 
-  CircularProgress,
-  Chip,
   Fab,
   Paper,
-  Divider,
+  Typography,
   useTheme,
   useMediaQuery
 } from '@mui/material';
-import { 
-  Add as AddIcon, 
-  Delete as DeleteIcon, 
-  Edit as EditIcon,
-  LocationOn as LocationIcon,
-  Close as CloseIcon
-} from '@mui/icons-material';
+import { Add as AddIcon } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { getNotes, createNote, deleteNote, Note, NotesResponse } from './utils/notesUtil';
+
+// Components
+import Header from './components/Header';
+import CreateNoteForm from './components/CreateNoteForm';
+import NotesList from './components/NotesList';
+import DeleteConfirmDialog from './components/DeleteConfirmDialog';
 
 // Create a mobile-first custom theme
 const theme = createTheme({
@@ -200,54 +187,19 @@ function App() {
     return new Date(dateString).toLocaleDateString();
   };
 
+  const handleCancelCreate = () => {
+    setShowCreateForm(false);
+    setNewNote({ title: '', body: '' });
+    setError(null);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-        {/* App Bar */}
-        <AppBar position="static" elevation={0} sx={{ bgcolor: 'primary.main' }}>
-          <Toolbar sx={{ minHeight: { xs: 48, sm: 64 }, py: { xs: 0.5, sm: 1 } }}>
-            <LocationIcon sx={{ mr: 1, fontSize: { xs: 18, sm: 24 } }} />
-            <Typography 
-              variant="h6" 
-              component="div" 
-              sx={{ 
-                flexGrow: 1,
-                fontSize: { xs: '0.875rem', sm: '1.25rem' },
-                fontWeight: { xs: 500, sm: 600 }
-              }}
-            >
-              Location Notes
-            </Typography>
-          </Toolbar>
-        </AppBar>
-
-        {/* Hero Section */}
-        <Box sx={{ 
-          bgcolor: 'primary.main', 
-          color: 'white', 
-          py: { xs: 2, sm: 6, md: 8 }, 
-          textAlign: 'center' 
-        }}>
-          <Container maxWidth="md" sx={{ px: { xs: 2, sm: 3 } }}>
-            <Typography 
-              variant="h1" 
-              component="h1" 
-              gutterBottom
-              sx={{ mb: { xs: 1, sm: 3 } }}
-            >
-              📝 Location Notes
-            </Typography>
-            <Typography 
-              variant="h6" 
-              sx={{ 
-                opacity: 0.9,
-                fontSize: { xs: '0.875rem', sm: '1.25rem' }
-              }}
-            >
-              Create and manage your notes based on your location
-            </Typography>
-          </Container>
-        </Box>
+        <Header 
+          title="📝 Location Notes"
+          subtitle="Create and manage your notes based on your location"
+        />
 
         {/* Main Content */}
         <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 4 }, px: { xs: 1, sm: 2 } }}>
@@ -276,7 +228,6 @@ function App() {
                 </Box>
                 <Button
                   variant="contained"
-                  startIcon={<AddIcon />}
                   onClick={() => setShowCreateForm(!showCreateForm)}
                   fullWidth={isMobile}
                   sx={{ 
@@ -304,151 +255,24 @@ function App() {
 
             {/* Create Note Form */}
             {showCreateForm && (
-              <Box sx={{ p: { xs: 2, sm: 3 }, bgcolor: 'grey.50' }}>
-                <Typography variant="h6" gutterBottom>
-                  Create New Note
-                </Typography>
-                <Box component="form" onSubmit={handleCreateNote} sx={{ mt: 2 }}>
-                  <TextField
-                    fullWidth
-                    label="Title"
-                    value={newNote.title}
-                    onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
-                    placeholder="Enter note title..."
-                    margin="normal"
-                    required
-                    variant="outlined"
-                    sx={{ mb: 2 }}
-                  />
-                  <TextField
-                    fullWidth
-                    label="Content"
-                    value={newNote.body}
-                    onChange={(e) => setNewNote({ ...newNote, body: e.target.value })}
-                    placeholder="Enter note content..."
-                    margin="normal"
-                    required
-                    multiline
-                    rows={isMobile ? 6 : 4}
-                    variant="outlined"
-                    sx={{ mb: 3 }}
-                  />
-                  <Box sx={{ 
-                    display: 'flex', 
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    gap: 2, 
-                    justifyContent: 'flex-end' 
-                  }}>
-                    <Button
-                      variant="outlined"
-                      onClick={() => {
-                        setShowCreateForm(false);
-                        setNewNote({ title: '', body: '' });
-                        setError(null);
-                      }}
-                      fullWidth={isMobile}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      disabled={creating}
-                      startIcon={creating ? <CircularProgress size={20} /> : null}
-                      fullWidth={isMobile}
-                    >
-                      {creating ? 'Creating...' : 'Create Note'}
-                    </Button>
-                  </Box>
-                </Box>
-              </Box>
+              <CreateNoteForm
+                newNote={newNote}
+                setNewNote={setNewNote}
+                creating={creating}
+                onSubmit={handleCreateNote}
+                onCancel={handleCancelCreate}
+              />
             )}
 
             {/* Notes List */}
             <Box sx={{ p: { xs: 2, sm: 3 } }}>
-              {loading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', py: { xs: 6, sm: 8 } }}>
-                  <CircularProgress />
-                </Box>
-              ) : notes.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: { xs: 6, sm: 8 } }}>
-                  <Typography variant="h6" color="text.secondary" gutterBottom>
-                    No notes yet
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Create your first note to get started!
-                  </Typography>
-                </Box>
-              ) : (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  {notes.map((note, index) => (
-                    <Card key={note._id || index}>
-                      <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                        <Box sx={{ 
-                          display: 'flex', 
-                          flexDirection: { xs: 'column', sm: 'row' },
-                          justifyContent: 'space-between', 
-                          alignItems: { xs: 'stretch', sm: 'flex-start' }, 
-                          mb: 2,
-                          gap: 1
-                        }}>
-                          <Typography 
-                            variant="h6" 
-                            component="h3" 
-                            sx={{ 
-                              flexGrow: 1, 
-                              mr: { xs: 0, sm: 2 },
-                              wordBreak: 'break-word'
-                            }}
-                          >
-                            {note.title}
-                          </Typography>
-                          <Box sx={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 1,
-                            justifyContent: { xs: 'space-between', sm: 'flex-end' }
-                          }}>
-                            <Chip
-                              label={formatDate(note.created_at)}
-                              size="small"
-                              variant="outlined"
-                              color="primary"
-                            />
-                            <IconButton
-                              color="error"
-                              onClick={() => openDeleteConfirm(note)}
-                              disabled={deleting === note._id}
-                              size="medium"
-                              sx={{ 
-                                minWidth: 48,
-                                minHeight: 48,
-                                '&:hover': {
-                                  bgcolor: 'error.light',
-                                  color: 'white'
-                                }
-                              }}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                          </Box>
-                        </Box>
-                        <Typography 
-                          variant="body2" 
-                          color="text.secondary" 
-                          sx={{ 
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word',
-                            lineHeight: 1.6
-                          }}
-                        >
-                          {note.body}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </Box>
-              )}
+              <NotesList
+                notes={notes}
+                loading={loading}
+                deleting={deleting}
+                onDelete={openDeleteConfirm}
+                formatDate={formatDate}
+              />
             </Box>
           </Paper>
         </Container>
@@ -471,70 +295,13 @@ function App() {
         )}
 
         {/* Delete Confirmation Dialog */}
-        <Dialog
+        <DeleteConfirmDialog
           open={!!showDeleteConfirm}
+          noteToDelete={noteToDelete}
+          deleting={deleting}
           onClose={closeDeleteConfirm}
-          maxWidth="sm"
-          fullWidth
-          fullScreen={isMobile}
-          PaperProps={{
-            sx: {
-              borderRadius: isMobile ? 0 : 2,
-              m: isMobile ? 0 : 2,
-            }
-          }}
-        >
-          <DialogTitle>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <DeleteIcon color="error" />
-              <Typography variant="h6">Delete Note</Typography>
-              {isMobile && (
-                <IconButton
-                  edge="end"
-                  color="inherit"
-                  onClick={closeDeleteConfirm}
-                  aria-label="close"
-                  sx={{ ml: 'auto' }}
-                >
-                  <CloseIcon />
-                </IconButton>
-              )}
-            </Box>
-          </DialogTitle>
-          <DialogContent>
-            <Typography sx={{ mt: 1 }}>
-              Are you sure you want to delete <strong>"{noteToDelete?.title}"</strong>? 
-              <br />
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                This action cannot be undone.
-              </Typography>
-            </Typography>
-          </DialogContent>
-          <DialogActions sx={{ 
-            p: { xs: 2, sm: 3 },
-            flexDirection: { xs: 'column', sm: 'row' },
-            gap: 1
-          }}>
-            <Button 
-              onClick={closeDeleteConfirm} 
-              disabled={deleting === noteToDelete?._id}
-              fullWidth={isMobile}
-              variant="outlined"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => noteToDelete && handleDeleteNote(noteToDelete._id || '')}
-              color="error"
-              variant="contained"
-              disabled={deleting === noteToDelete?._id}
-              startIcon={deleting === noteToDelete?._id ? <CircularProgress size={20} /> : null}
-              fullWidth={isMobile}
-            >
-              {deleting === noteToDelete?._id ? 'Deleting...' : 'Delete'}
-            </Button>
-          </DialogActions>
-        </Dialog>
+          onConfirm={handleDeleteNote}
+        />
       </Box>
     </ThemeProvider>
   );
