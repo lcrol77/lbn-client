@@ -11,7 +11,6 @@ function App() {
   const [creating, setCreating] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
-  const [noteToDelete, setNoteToDelete] = useState<Note | null>(null);
 
   // Fetch notes on component mount
   useEffect(() => {
@@ -61,23 +60,12 @@ function App() {
       await deleteNote(id);
       await fetchNotes(); // Refresh the notes list
       setShowDeleteConfirm(null);
-      setNoteToDelete(null);
     } catch (err) {
       setError('Failed to delete note');
       console.error('Error deleting note:', err);
     } finally {
       setDeleting(null);
     }
-  };
-
-  const openDeleteConfirm = (note: Note) => {
-    setNoteToDelete(note);
-    setShowDeleteConfirm(note._id || '');
-  };
-
-  const closeDeleteConfirm = () => {
-    setShowDeleteConfirm(null);
-    setNoteToDelete(null);
   };
 
   const formatDate = (dateString?: string) => {
@@ -88,8 +76,8 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>📝 Notes App</h1>
-        <p>Create and manage your notes</p>
+        <h1>Location Based Notes</h1>
+        <p>Create and manage your notes based on your location</p>
       </header>
 
       <main className="App-main">
@@ -180,7 +168,8 @@ function App() {
                       </span>
                       <button
                         className="delete-btn"
-                        onClick={() => openDeleteConfirm(note)}
+                        onClick={() => 
+                          setShowDeleteConfirm(note._id || '')}
                         disabled={deleting === note._id}
                         title="Delete note"
                       >
@@ -191,38 +180,38 @@ function App() {
                   <div className="note-content">
                     {note.body}
                   </div>
+                  
+                  {/* Delete Confirmation Modal */}
+                  {showDeleteConfirm === note._id && (
+                    <div className="delete-confirm-overlay">
+                      <div className="delete-confirm-modal">
+                        <h4>Delete Note</h4>
+                        <p>Are you sure you want to delete "{note.title}"? This action cannot be undone.</p>
+                        <div className="delete-confirm-actions">
+                          <button
+                            className="delete-confirm-btn"
+                            onClick={() => handleDeleteNote(note._id || '')}
+                            disabled={deleting === note._id}
+                          >
+                            {deleting === note._id ? 'Deleting...' : 'Delete'}
+                          </button>
+                          <button
+                            className="cancel-btn"
+                            onClick={() => setShowDeleteConfirm(null)}
+                            disabled={deleting === note._id}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))
             )}
           </div>
         </div>
       </main>
-
-      {/* Delete Confirmation Modal - Outside of note cards */}
-      {showDeleteConfirm && noteToDelete && (
-        <div className="delete-confirm-overlay">
-          <div className="delete-confirm-modal">
-            <h4>Delete Note</h4>
-            <p>Are you sure you want to delete "{noteToDelete.title}"? This action cannot be undone.</p>
-            <div className="delete-confirm-actions">
-              <button
-                className="delete-confirm-btn"
-                onClick={() => handleDeleteNote(noteToDelete._id || '')}
-                disabled={deleting === noteToDelete._id}
-              >
-                {deleting === noteToDelete._id ? 'Deleting...' : 'Delete'}
-              </button>
-              <button
-                className="cancel-btn"
-                onClick={closeDeleteConfirm}
-                disabled={deleting === noteToDelete._id}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
