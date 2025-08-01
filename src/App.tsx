@@ -12,7 +12,8 @@ import {
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { getNotes, createNote, deleteNote, Note, NotesResponse } from './utils/notesUtil';
+import { getNotes, createNote, deleteNote } from './utils/notesUtil';
+import { Note, NotesResponse } from './utils/types';
 
 // Components
 import Header from './components/Header';

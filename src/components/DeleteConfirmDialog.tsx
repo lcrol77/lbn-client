@@ -13,7 +13,7 @@ import {
   useTheme
 } from '@mui/material';
 import { Delete as DeleteIcon, Close as CloseIcon } from '@mui/icons-material';
-import { Note } from '../utils/notesUtil';
+import { Note } from '../utils/types';
 
 interface DeleteConfirmDialogProps {
   open: boolean;

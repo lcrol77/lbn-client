@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, Typography, Box, IconButton, Chip } from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
-import { Note } from '../utils/notesUtil';
+import { Note } from '../utils/types';
 
 interface NoteCardProps {
   note: Note;

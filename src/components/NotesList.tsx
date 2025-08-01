@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
 import NoteCard from './NoteCard';
-import { Note } from '../utils/notesUtil';
+import { Note } from '../utils/types';
 
 interface NotesListProps {
   notes: Note[];
