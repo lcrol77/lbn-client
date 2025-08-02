@@ -107,7 +107,11 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newNote, setNewNote] = useState({ title: '', body: '' });
+  const [newNote, setNewNote] = useState({ 
+    title: '', 
+    body: '', 
+    location: { type: 'Point', coordinates: [-122.0322, 37.3230] } // Cupertino, CA [lng, lat]
+  });
   const [creating, setCreating] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
@@ -146,7 +150,11 @@ function App() {
       setCreating(true);
       setError(null);
       await createNote(newNote);
-      setNewNote({ title: '', body: '' });
+      setNewNote({ 
+    title: '', 
+    body: '', 
+    location: { type: 'Point', coordinates: [-122.0322, 37.3230] } // Cupertino, CA [lng, lat]
+ });
       setShowCreateForm(false);
       await fetchNotes(); // Refresh the notes list
     } catch (err) {
@@ -190,7 +198,7 @@ function App() {
 
   const handleCancelCreate = () => {
     setShowCreateForm(false);
-    setNewNote({ title: '', body: '' });
+    setNewNote({ title: '', body: '', location: { type: 'Point', coordinates: [-122.0322, 37.3230] } });
     setError(null);
   };
 

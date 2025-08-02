@@ -1,4 +1,4 @@
-import { NoteResponse, NotesResponse } from "./types";
+import { GeoJSONPoint, NoteResponse, NotesResponse } from "./types";
 
 // Environment configuration
 export const NOTES_SERVER = process.env.NOTES_SERVER || 'http://localhost:8080';
@@ -30,7 +30,7 @@ export const getNote = async (id: string): Promise<NoteResponse> => {
 }
 
 // Create a new note
-export const createNote = async (note: { title: string; body: string }): Promise<NoteResponse> => {
+export const createNote = async (note: { title: string; body: string; location: GeoJSONPoint }): Promise<NoteResponse> => {
     const url = getNotesServerUrl();
     const response = await fetch(`${url}/note`, {
         method: 'POST',

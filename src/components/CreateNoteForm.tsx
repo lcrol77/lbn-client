@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   Box, 
   Typography, 
@@ -8,10 +8,12 @@ import {
   useMediaQuery,
   useTheme
 } from '@mui/material';
+import { GeoJSONPoint } from '../utils/types';
+import { useGeoJSONLocation } from '../hooks/useGeoJSONLocation';
 
 interface CreateNoteFormProps {
-  newNote: { title: string; body: string };
-  setNewNote: (note: { title: string; body: string }) => void;
+  newNote: { title: string; body: string; location: GeoJSONPoint };
+  setNewNote: (note: { title: string; body: string; location: GeoJSONPoint }) => void;
   creating: boolean;
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
@@ -26,7 +28,10 @@ const CreateNoteForm: React.FC<CreateNoteFormProps> = ({
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
+  const { location, error, isLoading } = useGeoJSONLocation();
+  useEffect(() => {
+    console.log(location);
+  }, [location]);
   return (
     <Box sx={{ p: { xs: 2, sm: 3 }, bgcolor: 'grey.50' }}>
       <Typography variant="h6" gutterBottom>
